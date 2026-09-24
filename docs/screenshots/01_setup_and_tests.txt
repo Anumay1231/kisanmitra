@@ -1,0 +1,23 @@
+$ python scripts/seed_db.py
+Seeded data/dealership.sqlite3: 9 machines, 5 parts, 40 service records
+              model   category  hp  price_inr  stock  fuel_lph  \
+0          JD 5050D    tractor  50     850000      4       4.2   
+1           JD 5105    tractor  40     720000      2       3.6   
+2       JD 5310 4WD    tractor  55    1180000      1       4.8   
+3         JD 3028EN    tractor  28     610000      3       2.4  
+
+$ python tests/test_agent_offline.py
+/content/tests/test_agent_offline.py:15: LangChainDeprecationWarning: RunnableWithMessageHistory is deprecated. Use LangGraph's built-in persistence instead.
+  chain, store, tools = build_conversational_agent(llm, verbose=False)
+PASS multi-tool flow: ['search_inventory', 'calculate_purchase_plan']
+/content/tests/test_agent_offline.py:29: LangChainDeprecationWarning: RunnableWithMessageHistory is deprecated. Use LangGraph's built-in persistence instead.
+  chain, _, _ = build_conversational_agent(llm, verbose=False)
+PASS tool-error handling: TOOL_ERROR: location 'Nowhereville' not found by the geocodi
+/content/tests/test_agent_offline.py:38: LangChainDeprecationWarning: RunnableWithMessageHistory is deprecated. Use LangGraph's built-in persistence instead.
+  chain, _, _ = build_conversational_agent(llm, verbose=False)
+PASS no-tool path
+/content/tests/test_agent_offline.py:45: LangChainDeprecationWarning: RunnableWithMessageHistory is deprecated. Use LangGraph's built-in persistence instead.
+  chain, _, _ = build_conversational_agent(llm, verbose=False, max_iterations=3)
+PASS max-iteration guard: 3 steps
+
+All offline agent tests passed.

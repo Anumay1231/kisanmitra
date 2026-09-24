@@ -1,0 +1,49 @@
+$ multi-step question: inventory lookup then EMI calculation
+
+
+
+[1m> Entering new AgentExecutor chain...[0m
+[32;1m[1;3m
+Invoking: `calculate_purchase_plan` with `{'annual_rate_percent': 9.5, 'down_payment_inr': 100000, 'price_inr': 850000, 'subsidy_percent': 40, 'years': 5}`
+
+
+[0m[38;5;200m[1;3mprice=Rs 850,000; subsidy(40.0%)=Rs 340,000; net=Rs 510,000; down_payment=Rs 100,000; loan_principal=Rs 410,000; emi=Rs 8,611/month for 60 months at 9.5%; total_interest=Rs 106,646; total_paid=Rs 516,646[0m[32;1m[1;3m
+Invoking: `calculate_purchase_plan` with `{'annual_rate_percent': 9.5, 'down_payment_inr': 100000, 'price_inr': 720000, 'subsidy_percent': 40, 'years': 5}`
+
+
+[0m[38;5;200m[1;3mprice=Rs 720,000; subsidy(40.0%)=Rs 288,000; net=Rs 432,000; down_payment=Rs 100,000; loan_principal=Rs 332,000; emi=Rs 6,973/month for 60 months at 9.5%; total_interest=Rs 86,357; total_paid=Rs 418,357[0m[32;1m[1;3m**Recommendation:** **JD 5105** (40 hp)  
+
+- **On‑road price:** ₹720,000 (search_inventory)  
+- **Subsidy (40 %):** ₹288,000  
+- **Net price after subsidy:** ₹432,000  
+- **Down‑payment:** ₹100,000 (your upfront amount)  
+- **Loan principal:** ₹332,000  
+
+**5‑year EMI (calculate_purchase_plan):** **₹6,973 per month** for 60 months at 9.5 % interest.  
+
+*Total interest paid:* ₹86,357  
+*Total amount paid over 5 years (including down‑payment):* ₹418,357  
+
+The JD 5105 gives you a lower monthly EMI than the larger JD 5050D while staying well within the ₹9 lakh budget.[0m
+
+[1m> Finished chain.[0m
+
+Q: I can pay 1 lakh upfront and I qualify for 40% subsidy. Recommend one of those and give me the 5-year EMI.
+A: **Recommendation:** **JD 5105** (40 hp)  
+
+- **On‑road price:** ₹720,000 (search_inventory)  
+- **Subsidy (40 %):** ₹288,000  
+- **Net price after subsidy:** ₹432,000  
+- **Down‑payment:** ₹100,000 (your upfront amount)  
+- **Loan principal:** ₹332,000  
+
+**5‑year EMI (calculate_purchase_plan):** **₹6,973 per month** for 60 months at 9.5 % interest.  
+
+*Total interest paid:* ₹86,357  
+*Total amount paid over 5 years (including down‑payment):* ₹418,357  
+
+The JD 5105 gives you a lower monthly EMI than the larger JD 5050D while staying well within the ₹9 lakh budget.
+Tools called:
+  calculate_purchase_plan({'annual_rate_percent': 9.5, 'down_payment_inr': 100000, 'price_inr': 850000, 'subsidy_percent': 40, 'years': 5}) -> price=Rs 850,000; subsidy(40.0%)=Rs 340,000; net=Rs 510,000; down_payment=Rs 100,000; loan_principal=Rs 410,000; emi=Rs 8,611/month for 60 months at 9.5%; total_interest=Rs 106,646; total_paid=Rs 516,646
+  calculate_purchase_plan({'annual_rate_percent': 9.5, 'down_payment_inr': 100000, 'price_inr': 720000, 'subsidy_percent': 40, 'years': 5}) -> price=Rs 720,000; subsidy(40.0%)=Rs 288,000; net=Rs 432,000; down_payment=Rs 100,000; loan_principal=Rs 332,000; emi=Rs 6,973/month for 60 months at 9.5%; total_interest=Rs 86,357; total_paid=Rs 418,357
+Card: {'recommendation': 'Choose JD 5105 (40 hp); with ₹100,000 down‑payment and 40% subsidy, the 5‑year EMI is ₹6,973 per month.', 'key_figures': ['On‑road price Rs 720,000', 'Subsidy Rs 288,000 (40%)', 'Net price Rs 432,000', 'Down‑payment Rs 100,000', 'Loan principal Rs 332,000', 'EMI Rs 6,973/month for 60 months at 9.5% interest', 'Total interest Rs 86,357', 'Total amount paid Rs 418,357'], 'tools_used': ['search_inventory', 'calculate_purchase_plan'], 'data_gaps': '', 'confidence': 'high'}

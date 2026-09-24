@@ -1,0 +1,9 @@
+$ S7: mandi price tool with no API key
+
+What is the mandi price of paddy in Chhattisgarh right now?
+
+tools called: get_mandi_price
+
+answer: I’m unable to retrieve the current mandi price for paddy in Chhattisgarh because the data source isn’t available at the moment. If you have an expected selling price or need any other assistance (e.g., subsidy calculations, machine selection), please let me know.
+
+data gaps: Mandi price data unavailable due to missing API key for the data.gov.in service.

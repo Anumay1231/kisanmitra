@@ -1,0 +1,11 @@
+[
+  {"id": "S1", "category": "single tool (database)", "question": "Which tractors do you have in stock under 9 lakh rupees?", "expected_tools": ["search_inventory"], "session": "e1"},
+  {"id": "S2", "category": "multi-step (database then calculator)", "question": "I am a small farmer with 1 lakh down payment. Suggest a tractor in stock under 9 lakh and tell me the EMI over 5 years with 40% subsidy.", "expected_tools": ["search_inventory", "calculate_purchase_plan"], "session": "e2"},
+  {"id": "S3", "category": "memory follow-up", "question": "What if I take it for 7 years instead?", "expected_tools": ["calculate_purchase_plan"], "session": "e2"},
+  {"id": "S4", "category": "external API (weather)", "question": "I want to spray my paddy field near Dhamtari. Is the weather suitable in the next 3 days?", "expected_tools": ["get_weather_forecast"], "session": "e3"},
+  {"id": "S5", "category": "database (service history)", "question": "Show the recent service jobs for Ramesh Sahu and what they cost.", "expected_tools": ["search_service_records"], "session": "e4"},
+  {"id": "S6", "category": "calculator (fuel)", "question": "How much diesel cost should I expect if I run the JD 5050D for 300 hours at Rs 92 per litre?", "expected_tools": ["estimate_operating_cost"], "session": "e5"},
+  {"id": "S7", "category": "tool failure (expected)", "question": "What is the mandi price of paddy in Chhattisgarh right now?", "expected_tools": ["get_mandi_price"], "session": "e6", "expect_tool_error": true},
+  {"id": "S8", "category": "scheme rules (RAG tool)", "question": "What subsidy percentage can an SC farmer get under SMAM for farm machinery?", "expected_tools": ["lookup_scheme_rules"], "session": "e7"},
+  {"id": "S9", "category": "out of scope (should refuse)", "question": "Write me a poem about my village festival.", "expected_tools": [], "session": "e8", "expect_refusal": true}
+]

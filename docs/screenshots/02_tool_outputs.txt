@@ -1,0 +1,16 @@
+$ direct tool calls (database, calculator, weather API)
+
+['get_weather_forecast', 'get_mandi_price', 'search_inventory', 'search_service_records', 'check_part_stock', 'calculate_purchase_plan', 'estimate_operating_cost'] 
+
+model=JD 3028EN; category=tractor; hp=28; price_inr=610000; stock=3; fuel_lph=2.4; notes=Narrow orchard tractor
+model=JD 5105; category=tractor; hp=40; price_inr=720000; stock=2; fuel_lph=3.6; notes=2WD, popular for rotavator work
+model=JD 5050D; category=tractor; hp=50; price_inr=850000; stock=4; fuel_lph=4.2; notes=2WD utility tractor, 8F+4R gears 
+
+price=Rs 850,000; subsidy(40.0%)=Rs 340,000; net=Rs 510,000; down_payment=Rs 100,000; loan_principal=Rs 410,000; emi=Rs 8,611/month for 60 months at 9.5%; total_interest=Rs 106,646; total_paid=Rs 516,646 
+
+JD 5050D: 4.2 L/hour x 300.0 hours = 1260.0 litres; fuel cost = Rs 115,920 at Rs 92.0/litre 
+
+Forecast for Dhamtari, Chhattisgarh:
+2026-09-24: rain 91.5 mm (chance 100%), temp 24.0-26.0 C, max wind 31.9 km/h
+2026-09-25: rain 64.7 mm (chance 100%), temp 23.5-25.7 C, max wind 28.8 km/h
+2026-09-26: rain 6.7 mm (chance 98%), temp 23.7-27.8 C, max wind 27.2 km/h

@@ -1,0 +1,29 @@
+digraph G { rankdir=TB; bgcolor=white; nodesep=0.45; ranksep=0.4;
+ node[shape=box style="rounded,filled" fontname="Helvetica" fontsize=11 fillcolor="#EAF1FB" color="#1F4E79"];
+ edge[color="#444444" fontname="Helvetica" fontsize=9];
+ user[label="User question\n(dealership staff / farmer)" fillcolor="#FFF4DC"];
+ mem[label="Memory\n(RunnableWithMessageHistory)" fillcolor="#FDEBD0"];
+ prompt[label="ChatPromptTemplate\nsystem rules + history + agent_scratchpad"];
+ llm[label="LLM with bound tool schemas\nChatGroq Llama 3.3 70B" fillcolor="#F6E3F3"];
+ dec[label="Tool call needed?" shape=diamond fillcolor="#FFFFFF" height=0.8];
+ exec[label="AgentExecutor\n(runs tool, appends observation,\nmax 6 iterations)"];
+ subgraph cluster_t { label="External tools / data sources"; fontname="Helvetica-Bold"; color="#999999"; style=dashed;
+  w[label="get_weather_forecast\nOpen-Meteo REST API" fillcolor="#E3F4E1"];
+  m[label="get_mandi_price\ndata.gov.in REST API" fillcolor="#E3F4E1"];
+  db[label="search_inventory · search_service_records\ncheck_part_stock\nSQLite dealership DB" shape=cylinder fillcolor="#E3F4E1"];
+  calc[label="calculate_purchase_plan\nestimate_operating_cost\n(deterministic Python)" fillcolor="#E3F4E1"];
+  rag[label="lookup_scheme_rules\nFAISS retriever over SMAM PDFs" fillcolor="#E3F4E1"];
+ }
+ subgraph cluster_o { label="Response formatting"; fontname="Helvetica-Bold"; color="#999999"; style=dashed;
+  sum[label="Summary chain (LCEL)\nSUMMARY_PROMPT | llm | PydanticOutputParser"];
+  card[label="AdviceCard\n{recommendation, key_figures,\ntools_used, data_gaps, confidence}" fillcolor="#FFF4DC"];
+  ui[label="Gradio chat UI" fillcolor="#FFF4DC"];
+ }
+ user->prompt; mem->prompt[label="past turns"]; prompt->llm; llm->dec;
+ dec->exec[label="yes: name + arguments"];
+ exec->w[style=invis];
+ exec->db[label="invoke"]; exec->w; exec->m; exec->calc; exec->rag;
+ db->exec[label="observation" style=dashed]; w->exec[style=dashed]; m->exec[style=dashed]; calc->exec[style=dashed]; rag->exec[style=dashed];
+ exec->prompt[label="append to agent_scratchpad" style=dashed constraint=false];
+ dec->sum[label="no: final answer"]; sum->card->ui; ui->mem[style=dotted label="save turn" constraint=false];
+}
