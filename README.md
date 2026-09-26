@@ -37,6 +37,8 @@ eval/             test_scenarios.json, results.csv (generated)
 notebooks/        KisanMitra_Agent.ipynb (self-contained Colab version)
 docs/             architecture diagram, progress notes
 app.py            Gradio chat UI
+server.py         FastAPI backend for the web UI (streams each tool call live)
+frontend/         React + Vite + Tailwind web UI
 ```
 
 ## Run
@@ -50,8 +52,21 @@ export DATAGOV_API_KEY=...       # optional; without it the mandi tool returns T
 python scripts/seed_db.py
 python tests/test_agent_offline.py   # agent loop tests, no API key needed
 python scripts/evaluate.py           # writes eval/results.csv
-python app.py
+python app.py                        # Gradio UI
 ```
+
+**Web UI (React):**
+```bash
+cd frontend && npm install && npm run build && cd ..
+python server.py                     # open http://localhost:8000
+```
+Every tool call appears in the chat as the agent makes it (tool, arguments, result), followed by the answer and the
+structured `AdviceCard` (key figures, confidence, data gaps). Without `GROQ_API_KEY` the server starts in **demo mode**:
+a rule-based router calls the same real tools so the UI can be tried offline; the header shows which mode is active.
+For frontend development run `python server.py` and `cd frontend && npm run dev` (Vite proxies `/api` to port 8000).
+`python tests/test_server.py` checks the API, including tool-call streaming with the scripted LLM.
+
+![web ui](docs/screenshots/07_web_ui.png)
 
 ## Evaluation
 9 scenarios: single-tool database lookup, multi-step (inventory → EMI), memory follow-up, weather API, service history, fuel calculator, a deliberate tool failure (no mandi key), scheme lookup through the RAG tool, and an out-of-scope request that must be refused. Metrics: tool-selection correctness, error handling, tool calls per question, latency, and an independent Python re-computation of the EMI to verify the calculator's figure.
