@@ -139,8 +139,11 @@ def summarise(llm, question: str, result) -> AdviceCard:
 STOPPED = "Agent stopped due to max iterations"
 
 
-def run(chain, llm, question: str, session_id: str = "default", verbose: bool = True):
-    result = chain.invoke({"input": question}, config={"configurable": {"session_id": session_id}})
+def run(chain, llm, question: str, session_id: str = "default", verbose: bool = True, callbacks=None):
+    cfg = {"configurable": {"session_id": session_id}}
+    if callbacks:
+        cfg["callbacks"] = callbacks      # lets the web server stream tool calls as they happen
+    result = chain.invoke({"input": question}, config=cfg)
     if STOPPED in result["output"]:
         # The agent used up its tool budget (usually by re-asking one tool). Salvage an answer from
         # the observations it already collected instead of returning the framework's stop message.
