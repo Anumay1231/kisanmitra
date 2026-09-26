@@ -4,7 +4,18 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <meta name="description" content="KisanMitra: dealership assistant for stock, EMI, service history, spare parts and field weather." />
+    <meta name="theme-color" content="#f6f7f6" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f1211" media="(prefers-color-scheme: dark)" />
+    <title>KisanMitra</title>
+    <script>
+      // Apply the saved or system theme before first paint to avoid a flash.
+      try {
+        var t = localStorage.getItem('km-theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+        else if (matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.dataset.theme = 'dark';
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

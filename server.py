@@ -320,6 +320,8 @@ def _demo(message: str, session_id: str, emit) -> dict:
 
 def _card(recommendation: str, figures: list[str], used: list[str], gaps: str, confidence: str) -> dict:
     rec = " ".join(recommendation.split()[:60])
+    gaps = gaps.split(". ")[0].rstrip(".")
+    gaps = (gaps[:1].upper() + gaps[1:] + ".") if gaps else ""
     return {"recommendation": rec, "key_figures": figures, "tools_used": list(dict.fromkeys(used)),
             "data_gaps": gaps, "confidence": confidence}
 
