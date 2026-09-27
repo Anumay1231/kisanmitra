@@ -398,4 +398,5 @@ if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))
     print(f"\nKisanMitra is running: open http://localhost:{port}  "
           f"(mode: {'demo, no LLM' if DEMO else 'agent, ' + str(STATE['model'])})\nPress Ctrl+C to stop.\n")
-    uvicorn.run(app, host="127.0.0.1", port=port, log_level="warning")
+    host = os.getenv("KM_HOST", "127.0.0.1")   # launch.py --phone sets 0.0.0.0 so phones on the same Wi-Fi can connect
+    uvicorn.run(app, host=host, port=port, log_level="warning")

@@ -10,6 +10,7 @@ What it does, every time:
 
 Options:  python launch.py --key     ask for the Groq key again
           python launch.py --rag     also install the scheme-document search (large download)
+          python launch.py --phone   also allow phones on the same Wi-Fi to open the app
 """
 from __future__ import annotations
 
@@ -104,6 +105,16 @@ def free_port(preferred: int = 8000) -> int:
     return preferred
 
 
+def lan_ip() -> str | None:
+    """This computer's address on the local network (what a phone on the same Wi-Fi should open)."""
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.connect(("8.8.8.8", 80))          # no data is sent; this only picks the outgoing interface
+            return s.getsockname()[0]
+    except OSError:
+        return None
+
+
 def open_browser_when_ready(url: str) -> None:
     for _ in range(600):                       # up to 5 minutes (first start can build the PDF index)
         try:
@@ -143,6 +154,11 @@ def main() -> None:
     run_env["PORT"] = str(port)
     url = f"http://localhost:{port}"
 
+    if "--phone" in args:
+        run_env["KM_HOST"] = "0.0.0.0"
+        ip = lan_ip()
+        say(f"Phone access is on. On a phone connected to the SAME Wi-Fi, open: http://{ip or '<this-PC-IP>'}:{port}")
+        print("   If Windows asks about the firewall, click 'Allow' for private networks.")
     mode = "with the Groq AI model" if run_env.get("GROQ_API_KEY") else "in demo mode (no API key)"
     say(f"Starting KisanMitra {mode}. Your browser will open at {url}")
     if run_env.get("GROQ_API_KEY"):
