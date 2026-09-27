@@ -13,6 +13,9 @@ The first run takes a few minutes to install packages; after that it starts in s
 To change the key: `python launch.py --key`. To add the subsidy-document search (large download): `python launch.py --rag`.
 If the AI model cannot start (wrong key, no internet), the app opens in demo mode and a yellow bar says why.
 
+**On your phone:** double-click **`Start KisanMitra (phone).bat`** instead. The window shows an address like
+`http://192.168.1.5:8000`; open it on a phone connected to the same Wi-Fi (allow the firewall prompt on the PC).
+
 ## Problem
 A tractor dealership answers the same questions all day: which machine fits a farmer's budget and land, what the EMI is after subsidy, whether a spare part is in stock, what a customer's machine was last serviced for, whether the next three days are dry enough to spray, and what a government scheme allows. The answers live in different places: a stock and service database, a weather service, a market price service, a subsidy PDF and a calculator. KisanMitra is an LLM **agent** that decides which of those sources to call, in what order, and combines them into one answer, without inventing any figure itself.
 
