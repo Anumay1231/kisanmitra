@@ -38,20 +38,30 @@ from pydantic import BaseModel, Field
 ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
+def _load_env_file(path: str) -> None:
+    """Read KEY=value lines from .env (no extra package needed). Real environment variables win."""
+    if not os.path.exists(path):
+        return
+    for line in open(path, encoding="utf-8"):
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            key, value = line.split("=", 1)
+            os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+
+
+_load_env_file(os.path.join(ROOT, ".env"))
+for _k in ("GROQ_API_KEY", "DATAGOV_API_KEY"):          # ignore the placeholders from .env.example
+    if os.getenv(_k, "").strip() in ("", "your_key_here", "optional_data_gov_in_key"):
+        os.environ.pop(_k, None)
+
 from kisanmitra import config  # noqa: E402
 from kisanmitra.tools import BASE_TOOLS  # noqa: E402
-
-try:  # optional .env support
-    from dotenv import load_dotenv
-    load_dotenv(os.path.join(ROOT, ".env"))
-except ImportError:
-    pass
 
 TOOLS_BY_NAME = {t.name: t for t in BASE_TOOLS}
 DEMO = os.getenv("KM_DEMO") == "1" or not os.getenv("GROQ_API_KEY")
 
 STATE: dict[str, Any] = {"llm": None, "chain": None, "tools": list(BASE_TOOLS), "model": None,
-                         "scheme_tool": False}
+                         "scheme_tool": False, "warning": None}
 
 
 def _init_agent() -> None:
@@ -76,6 +86,7 @@ def _init_agent() -> None:
         STATE.update(llm=llm, chain=chain, tools=tools, model=os.getenv("KM_LLM_MODEL", config.LLM_MODEL))
     except Exception as exc:
         print(f"Could not start the LLM agent ({exc}); running in demo mode.")
+        STATE["warning"] = f"Could not start the AI model, so this is demo mode. Reason: {exc}"[:300]
         DEMO = True
 
 
@@ -117,7 +128,8 @@ def health():
         listed.append({"name": "lookup_scheme_rules",
                        "description": "Search SMAM subsidy guidelines with page citations.",
                        "status": "unavailable"})
-    return {"mode": "demo" if DEMO else "agent", "model": None if DEMO else STATE["model"], "tools": listed}
+    return {"mode": "demo" if DEMO else "agent", "model": None if DEMO else STATE["model"], "tools": listed,
+            "warning": STATE["warning"]}
 
 
 @app.get("/api/inventory")
@@ -368,7 +380,11 @@ async def chat(body: ChatIn):
 # ------------------------------------------------------------------ serve the built frontend
 
 DIST = os.path.join(ROOT, "frontend", "dist")
-if os.path.isdir(DIST):
+if not os.path.isdir(DIST):
+    @app.get("/")
+    def no_frontend():
+        return {"error": "frontend/dist is missing. Run: cd frontend && npm install && npm run build"}
+else:
     app.mount("/assets", StaticFiles(directory=os.path.join(DIST, "assets")), name="assets")
 
     @app.get("/{path:path}")
@@ -379,5 +395,7 @@ if os.path.isdir(DIST):
 
 if __name__ == "__main__":
     import uvicorn
-    print(f"KisanMitra API on http://localhost:8000  (mode: {'demo' if DEMO else 'agent'})")
-    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
+    port = int(os.getenv("PORT", 8000))
+    print(f"\nKisanMitra is running: open http://localhost:{port}  "
+          f"(mode: {'demo, no LLM' if DEMO else 'agent, ' + str(STATE['model'])})\nPress Ctrl+C to stop.\n")
+    uvicorn.run(app, host="127.0.0.1", port=port, log_level="warning")

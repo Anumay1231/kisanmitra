@@ -1,9 +1,13 @@
 import os
 
+# Repo root, so the app works no matter which folder it is started from.
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+DATA_DIR = os.path.join(ROOT, "data")
+
 LLM_MODEL = os.getenv("KM_LLM_MODEL", "llama-3.3-70b-versatile")   # fallback only; agent.pick_model() checks what the key can actually call
 TEMPERATURE = float(os.getenv("KM_TEMPERATURE", 0))
 MAX_ITERATIONS = int(os.getenv("KM_MAX_ITER", 6))          # tool-call loops before the agent must answer
-DB_PATH = os.getenv("KM_DB_PATH", "data/dealership.sqlite3")
+DB_PATH = os.getenv("KM_DB_PATH", os.path.join(DATA_DIR, "dealership.sqlite3"))
 HTTP_TIMEOUT = int(os.getenv("KM_HTTP_TIMEOUT", 20))
 MAX_TOKENS = int(os.getenv("KM_MAX_TOKENS", 600))      # cap answer length to stay inside free-tier TPM
 MAX_RETRIES = int(os.getenv("KM_MAX_RETRIES", 8))      # Groq client waits out 429 rate limits

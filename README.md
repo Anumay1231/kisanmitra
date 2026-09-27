@@ -3,6 +3,16 @@
 PSIS Activity 2: *Build a Tool-Augmented/Agentic LLM Application*, B.Tech AI, MPSTME (2026–27)
 Team: **I054 Anumay Pandey · I023 Yash Garg · I037 Yash Kothari**
 
+## Quick start (Windows)
+1. Install Python 3.10+ from [python.org](https://www.python.org/downloads/) and tick **"Add python.exe to PATH"**.
+2. Double-click **`Start KisanMitra.bat`** in this folder.
+3. Paste your free Groq API key when asked (or press Enter for demo mode). It is saved in `.env`, so you only do this once.
+4. The app opens in your browser at http://localhost:8000. Close the black window to stop it.
+
+The first run takes a few minutes to install packages; after that it starts in seconds. On Mac/Linux run `./start.sh`.
+To change the key: `python launch.py --key`. To add the subsidy-document search (large download): `python launch.py --rag`.
+If the AI model cannot start (wrong key, no internet), the app opens in demo mode and a yellow bar says why.
+
 ## Problem
 A tractor dealership answers the same questions all day: which machine fits a farmer's budget and land, what the EMI is after subsidy, whether a spare part is in stock, what a customer's machine was last serviced for, whether the next three days are dry enough to spray, and what a government scheme allows. The answers live in different places: a stock and service database, a weather service, a market price service, a subsidy PDF and a calculator. KisanMitra is an LLM **agent** that decides which of those sources to call, in what order, and combines them into one answer, without inventing any figure itself.
 

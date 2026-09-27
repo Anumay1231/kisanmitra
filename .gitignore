@@ -3,3 +3,5 @@ __pycache__/
 *.sqlite3
 faiss_index/
 data/*.pdf
+.venv/
+faiss_scheme_index/

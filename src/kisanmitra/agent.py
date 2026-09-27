@@ -36,13 +36,17 @@ def list_available_models() -> list[str]:
     return sorted(m.id for m in Groq().models.list().data)
 
 
+PROBE_ERRORS: list[str] = []
+
+
 def model_works(name: str) -> bool:
     """Cheapest possible check that this key can actually call the model."""
     from langchain_groq import ChatGroq
     try:
-        ChatGroq(model=name, temperature=0, max_tokens=1).invoke("hi")
+        ChatGroq(model=name, temperature=0, max_tokens=1, max_retries=1).invoke("hi")
         return True
     except Exception as exc:
+        PROBE_ERRORS.append(str(exc))
         print(f"  {name}: unavailable ({str(exc)[:80]})")
         return False
 
@@ -67,7 +71,12 @@ def pick_model(verbose: bool = True) -> str:
                 print(f"Using model: {name}")
             os.environ["KM_LLM_MODEL"] = name      # remember for the rest of the session
             return name
-    raise RuntimeError(f"None of these models could be called with this key: {candidates}")
+    first = PROBE_ERRORS[0] if PROBE_ERRORS else "no models listed"
+    if "invalid_api_key" in first or "401" in first:
+        raise RuntimeError("Groq rejected the API key. Check it at console.groq.com/keys, then run launch.py --key")
+    if "Connection" in first or "connect" in first.lower():
+        raise RuntimeError("Could not connect to Groq. Check your internet connection or firewall")
+    raise RuntimeError(f"No Groq model could be called with this key ({first[:120]})")
 
 
 def get_llm(model: str | None = None, temperature: float = config.TEMPERATURE,

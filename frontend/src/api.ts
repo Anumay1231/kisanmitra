@@ -3,7 +3,7 @@ const BASE = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/
 
 export type ToolStatus = 'ok' | 'needs_key' | 'unavailable'
 export interface ToolInfo { name: string; description: string; status: ToolStatus }
-export interface Health { mode: 'demo' | 'agent'; model: string | null; tools: ToolInfo[] }
+export interface Health { mode: 'demo' | 'agent'; model: string | null; tools: ToolInfo[]; warning?: string | null }
 
 export interface Machine {
   model: string; category: string; hp: number; price_inr: number; stock: number; fuel_lph: number; notes: string

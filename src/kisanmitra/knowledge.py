@@ -9,10 +9,10 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from . import config
 
-INDEX_DIR = "faiss_scheme_index"
+INDEX_DIR = os.path.join(config.ROOT, "faiss_scheme_index")
 
 
-def download_scheme_pdfs(data_dir: str = "data") -> list[str]:
+def download_scheme_pdfs(data_dir: str = config.DATA_DIR) -> list[str]:
     os.makedirs(data_dir, exist_ok=True)
     paths = []
     for name, url in config.SCHEME_PDF_URLS:

@@ -216,11 +216,18 @@ export default function App() {
           </div>
         </header>
 
+        {health?.warning && !offline && (
+          <div role="status" className="flex items-start gap-2 bg-warn-soft px-4 py-2 text-sm text-warn sm:px-6">
+            <Warning size={16} weight="fill" className="mt-0.5 shrink-0" aria-hidden />
+            <span className="min-w-0 break-words">{health.warning}</span>
+          </div>
+        )}
+
         {offline && (
           <div role="alert" className="flex items-center gap-2 bg-warn-soft px-4 py-2 text-sm text-warn sm:px-6">
             <Warning size={16} weight="fill" aria-hidden />
-            Can't reach the KisanMitra server. Start it with <code className="font-mono">python server.py</code> and
-            reload.
+            Can't reach the KisanMitra server. Start it by double-clicking <b>Start KisanMitra.bat</b>, then reload
+            this page.
           </div>
         )}
 
