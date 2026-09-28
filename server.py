@@ -178,6 +178,15 @@ MODELS = ["JD 5310 4WD", "JD W70 Harvester", "JD 5050D", "JD 5105", "JD 3028EN"]
 DEMO_MEMORY: dict[str, dict] = {}
 
 
+def _date(iso: str) -> str:
+    """2026-04-17 -> 17 Apr 2026 (the date style the agent prompt asks for)."""
+    try:
+        from datetime import date
+        return date.fromisoformat(iso).strftime("%d %b %Y").lstrip("0")
+    except ValueError:
+        return iso
+
+
 def _inr(x: float) -> str:
     """Indian digit grouping: 850000 -> 8,50,000."""
     n = str(int(round(x)))
@@ -280,7 +289,8 @@ def _demo(message: str, session_id: str, emit) -> dict:
         costs = [int(x) for x in re.findall(r"cost_inr=(\d+)", out)]
         figures = [f"{len(costs)} jobs, total Rs {_inr(sum(costs))}"] if costs else []
         rows = [fields(r) for r in out.splitlines() if "service_date=" in r]
-        lines = [f"- {f['service_date']}: {f['issue']} on {f['model']} (Rs {_inr(int(f['cost_inr']))})" for f in rows]
+        lines = [f"- {_date(f['service_date'])}: {f['issue']} on {f['model']} (Rs {_inr(int(f['cost_inr']))})"
+                 for f in rows]
         answer = (f"Recent service jobs{' for ' + cust if cust else ''}:\n" + "\n".join(lines)) if lines else out
         return {"answer": answer, "card": _card(answer, figures, used, "", "high")}
 
