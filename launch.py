@@ -11,6 +11,7 @@ What it does, every time:
 Options:  python launch.py --key     ask for the Groq key again
           python launch.py --rag     also install the scheme-document search (large download)
           python launch.py --phone   also allow phones on the same Wi-Fi to open the app
+          python launch.py --share   also create a public https link anyone can open (Cloudflare quick tunnel)
 """
 from __future__ import annotations
 
@@ -105,6 +106,60 @@ def free_port(preferred: int = 8000) -> int:
     return preferred
 
 
+TOOLS_DIR = os.path.join(ROOT, ".tools")
+CLOUDFLARED_URLS = {
+    "win": "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe",
+    "linux": "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64",
+}
+
+
+def get_cloudflared() -> str:
+    """Path to the cloudflared program, downloading it into .tools the first time (about 60 MB)."""
+    import shutil
+    found = shutil.which("cloudflared")
+    if found:
+        return found
+    if sys.platform == "darwin":
+        fail("On a Mac, install cloudflared first: brew install cloudflared")
+    exe = os.path.join(TOOLS_DIR, "cloudflared.exe" if IS_WIN else "cloudflared")
+    if not os.path.exists(exe):
+        os.makedirs(TOOLS_DIR, exist_ok=True)
+        say("First share: downloading Cloudflare's tunnel program (about 60 MB, one time)...")
+        tmp = exe + ".part"
+        urllib.request.urlretrieve(CLOUDFLARED_URLS["win" if IS_WIN else "linux"], tmp)
+        os.replace(tmp, exe)
+        if not IS_WIN:
+            os.chmod(exe, 0o755)
+    return exe
+
+
+def start_tunnel(port: int) -> subprocess.Popen:
+    """Start a Cloudflare quick tunnel to the local app and print its public https link."""
+    import re
+    proc = subprocess.Popen([get_cloudflared(), "tunnel", "--no-autoupdate", "--url", f"http://127.0.0.1:{port}"],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, errors="replace")
+
+    def watch():
+        shown = False
+        for line in proc.stdout:                                  # keep reading so the pipe never fills
+            m = re.search(r"https://[a-z0-9-]+\.trycloudflare\.com", line)
+            if m and not shown:
+                shown = True
+                bar = "=" * 64
+                print(f"\n{bar}\n  PUBLIC LINK (share this):  {m.group(0)}\n"
+                      f"  Works while this window stays open. Close the window to stop sharing.\n{bar}\n", flush=True)
+                try:
+                    with open(os.path.join(ROOT, "public-link.txt"), "w", encoding="utf-8") as f:
+                        f.write(m.group(0) + "\n")
+                except OSError:
+                    pass
+        if not shown:
+            print("\nERROR: the public link could not be created. Check your internet connection.", flush=True)
+
+    threading.Thread(target=watch, daemon=True).start()
+    return proc
+
+
 def lan_ip() -> str | None:
     """This computer's address on the local network (what a phone on the same Wi-Fi should open)."""
     try:
@@ -159,6 +214,12 @@ def main() -> None:
         ip = lan_ip()
         say(f"Phone access is on. On a phone connected to the SAME Wi-Fi, open: http://{ip or '<this-PC-IP>'}:{port}")
         print("   If Windows asks about the firewall, click 'Allow' for private networks.")
+    tunnel = None
+    if "--share" in args:
+        run_env["KM_PUBLIC"] = "1"          # the server limits questions per visitor to protect your key
+        say("Sharing is on: creating a public link. It appears below in a few seconds.")
+        print("   Anyone with the link can use the app while this window is open.")
+        tunnel = start_tunnel(port)
     mode = "with the Groq AI model" if run_env.get("GROQ_API_KEY") else "in demo mode (no API key)"
     say(f"Starting KisanMitra {mode}. Your browser will open at {url}")
     if run_env.get("GROQ_API_KEY"):
@@ -168,6 +229,13 @@ def main() -> None:
         subprocess.run([VPY, os.path.join(ROOT, "server.py")], env=run_env, cwd=ROOT)
     except KeyboardInterrupt:
         pass
+    finally:
+        if tunnel:
+            tunnel.terminate()
+            try:
+                os.remove(os.path.join(ROOT, "public-link.txt"))
+            except OSError:
+                pass
     print("\nKisanMitra stopped.")
 
 

@@ -13,6 +13,11 @@ The first run takes a few minutes to install packages; after that it starts in s
 To change the key: `python launch.py --key`. To add the subsidy-document search (large download): `python launch.py --rag`.
 If the AI model cannot start (wrong key, no internet), the app opens in demo mode and a yellow bar says why.
 
+**Public link for anyone:** double-click **`Share KisanMitra (public link).bat`**. After a few seconds the window shows
+a link like `https://some-words.trycloudflare.com` that works on any phone or computer, anywhere, while that window
+stays open (it uses a free Cloudflare quick tunnel; the link changes each time). Each visitor can ask 20 questions per
+hour so your Groq key is not used up.
+
 **On your phone:** double-click **`Start KisanMitra (phone).bat`** instead. The window shows an address like
 `http://192.168.1.5:8000`; open it on a phone connected to the same Wi-Fi (allow the firewall prompt on the PC).
 

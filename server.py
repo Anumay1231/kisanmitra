@@ -29,7 +29,7 @@ import time
 import uuid
 from typing import Any
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -129,7 +129,8 @@ def health():
                        "description": "Search SMAM subsidy guidelines with page citations.",
                        "status": "unavailable"})
     return {"mode": "demo" if DEMO else "agent", "model": None if DEMO else STATE["model"], "tools": listed,
-            "warning": STATE["warning"]}
+            "warning": STATE["warning"], "public": PUBLIC,
+            "rate_limit": RATE_LIMIT if PUBLIC else None}
 
 
 @app.get("/api/inventory")
@@ -357,11 +358,47 @@ class ChatIn(BaseModel):
 
 LOCK = threading.Lock()  # Groq free tier: one agent run at a time
 
+# Public-link mode (launch.py --share sets KM_PUBLIC=1): each visitor gets a limited number of questions
+# per hour so strangers cannot use up the owner's Groq allowance. Local use has no limit.
+PUBLIC = os.getenv("KM_PUBLIC") == "1"
+RATE_LIMIT = int(os.getenv("KM_RATE_LIMIT", 20))         # questions per visitor per window
+RATE_WINDOW = int(os.getenv("KM_RATE_WINDOW", 3600))     # seconds
+_HITS: dict[str, list[float]] = {}
+_HITS_LOCK = threading.Lock()
+
+
+def _visitor(request: Request) -> str:
+    # Behind the Cloudflare tunnel every request comes from localhost; the real visitor is in this header.
+    return (request.headers.get("cf-connecting-ip")
+            or request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+            or (request.client.host if request.client else "unknown"))
+
+
+def _allow(visitor: str) -> tuple[bool, int]:
+    """Record one question; return (allowed, minutes until the oldest one expires)."""
+    now = time.time()
+    with _HITS_LOCK:
+        hits = [t for t in _HITS.get(visitor, []) if now - t < RATE_WINDOW]
+        if len(hits) >= RATE_LIMIT:
+            _HITS[visitor] = hits
+            return False, max(1, int((RATE_WINDOW - (now - hits[0])) // 60) + 1)
+        hits.append(now)
+        _HITS[visitor] = hits
+        return True, 0
+
 
 @app.post("/api/chat")
-async def chat(body: ChatIn):
+async def chat(body: ChatIn, request: Request):
     q: queue.Queue = queue.Queue()
     started = time.perf_counter()
+
+    if PUBLIC:
+        ok, wait_min = _allow(_visitor(request))
+        if not ok:
+            msg = (f"This shared demo allows {RATE_LIMIT} questions per hour per visitor. "
+                   f"Please try again in about {wait_min} minutes.")
+            return StreamingResponse(iter([json.dumps({"type": "error", "message": msg}) + "\n"]),
+                                     media_type="application/x-ndjson")
 
     def worker():
         try:

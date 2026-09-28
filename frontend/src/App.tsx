@@ -454,7 +454,10 @@ function TurnView({ turn }: { turn: Turn }) {
         {turn.status === 'error' && (
           <div role="alert" className="flex gap-2.5 rounded-2xl bg-neg-bg px-4 py-3 text-sm text-neg">
             <Warning size={16} weight="fill" className="mt-0.5 shrink-0" aria-hidden />
-            <span>{turn.error ?? 'Something went wrong.'} Try asking again.</span>
+            <span>
+              {turn.error ?? 'Something went wrong.'}
+              {/try again/i.test(turn.error ?? '') ? '' : ' Try asking again.'}
+            </span>
           </div>
         )}
         {turn.status === 'stopped' && <p className="text-sm text-mute">Stopped.</p>}

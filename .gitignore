@@ -5,3 +5,5 @@ faiss_index/
 data/*.pdf
 .venv/
 faiss_scheme_index/
+.tools/
+public-link.txt
